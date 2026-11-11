@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COSMOXSOUL - Fenómenos Extremos del Cosmos</title>
+    <!-- Google Fonts: Orbitron y Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        space: {
+                            dark: '#050714',
+                            card: 'rgba(15, 23, 42, 0.75)',
+                            accent: '#a855f7',
+                            cyan: '#06b6d4',
+                            pink: '#ec4899'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    boxShadow: {
+                        'neon-purple': '0 0 20px rgba(168, 85, 247, 0.5), 0 0 40px rgba(168, 85, 247, 0.2)',
+                        'neon-cyan': '0 0 20px rgba(6, 182, 212, 0.5), 0 0 40px rgba(6, 182, 212, 0.2)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+      
+        body {
+            background-color: #050714;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        #starfield {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+       
+        .glow-text-purple {
+            text-shadow: 0 0 12px rgba(168, 85, 247, 0.8), 0 0 24px rgba(168, 85, 247, 0.4);
+        }
+        .glow-text-cyan {
+            text-shadow: 0 0 12px rgba(6, 182, 212, 0.8), 0 0 24px rgba(6, 182, 212, 0.4);
+        }
+
+       
+        .neon-border {
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            transition: all 0.3s ease;
+        }
+        .neon-border:hover {
+            border-color: rgba(6, 182, 212, 0.8);
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+
+      
+        .page-section {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+        }
+        .page-section.active {
+            display: block;
+            opacity: 1;
+        }
+
+        
+        .graffiti-title {
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #a855f7 0%, #06b6d4 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050714;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b0764;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a855f7;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-purple-500 selection:text-white">
+
+        <canvas id="starfield"></canvas>
+
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-space-dark/80 border-b border-purple-900/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                
+               
+                <div class="cursor-pointer flex items-center gap-3" onclick="navigateTo('inicio')">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-600 to-cyan-400 flex items-center justify-center shadow-neon-purple animate-pulse">
+                        <i class="fa-solid font-bold text-white text-xl">🪐</i>
+                    </div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold graffiti-title tracking-widest drop-shadow">
+                        COSMOXSOUL
+                    </h1>
+                </div>
+
+                             <nav class="flex flex-wrap justify-center gap-2 sm:gap-3 bg-slate-900/80 p-1.5 rounded-full border border-purple-500/30">
+                    <button onclick="navigateTo('inicio')" id="nav-inicio" class="nav-btn px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 bg-purple-600 text-white shadow-neon-purple">
+                        <i class="fa-solid fa-house mr-1.5"></i>Inicio
+                    </button>
+                    <button onclick="navigateTo('galaxias')" id="nav-galaxias" class="nav-btn px-4 py-2 rounded-full text-sm font-semibold text-gray-300 hover:text-white hover:bg-purple-900/40 transition-all duration-300">
+                        <i class="fa-solid fa-galaxy mr-1.5"></i>Galaxias
+                    </button>
+                    <button onclick="navigateTo('curiosidades')" id="nav-curiosidades" class="nav-btn px-4 py-2 rounded-full text-sm font-semibold text-gray-300 hover:text-white hover:bg-purple-900/40 transition-all duration-300">
+                        <i class="fa-solid fa-meteor mr-1.5"></i>Curiosidades
+                    </button>
+                    <button onclick="navigateTo('contacto')" id="nav-contacto" class="nav-btn px-4 py-2 rounded-full text-sm font-semibold text-gray-300 hover:text-white hover:bg-purple-900/40 transition-all duration-300">
+                        <i class="fa-solid fa-paper-plane mr-1.5"></i>Contacto
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+  
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ========================================================================= -->
+        <!-- HOJA 1: SECCIÓN INICIO (index.html) -->
+        <!-- ========================================================================= -->
+        <section id="page-inicio" class="page-section active space-y-10">
+            <!-- Hero Banner Cósmico -->
+            <div class="relative rounded-3xl overflow-hidden border border-purple-500/40 bg-gradient-to-br from-purple-950/40 via-space-dark to-cyan-950/40 p-8 md:p-16 shadow-2xl backdrop-blur-sm">
+                <div class="absolute -top-24 -right-24 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 max-w-3xl mx-auto text-center space-y-6">
+                    <span class="inline-block px-4 py-1.5 rounded-full text-xs font-semibold tracking-wider bg-purple-900/60 text-purple-300 border border-purple-500/50 uppercase">
+                        Exploración Espacial Profunda
+                    </span>
+                    <h2 class="text-4xl md:text-6xl font-black font-orbitron tracking-wide leading-tight text-white glow-text-purple">
+                        Fenómenos Extremos del Cosmos
+                    </h2>
+                    <p class="text-gray-300 text-lg md:text-xl leading-relaxed">
+                        Bienvenido a <strong class="text-cyan-400 font-semibold">COSMOXSOUL</strong>. Embárcate en un viaje visual e interactivo a través de los eventos más deslumbrantes, violentos y fascinantes del universo. Desde supernovas colosales hasta misteriosos agujeros negros.
+                    </p>
+                    
+                  
+                    <div class="pt-4">
+                        <button onclick="navigateTo('galaxias')" class="inline-flex items-center gap-3 px-8 py-4 rounded-xl font-bold font-orbitron text-lg bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-neon-purple hover:shadow-neon-cyan hover:scale-105 transition-all duration-300 group">
+                            <span>EXPLORAR</span>
+                            <i class="fa-solid fa-arrow-right group-hover:translate-x-2 transition-transform duration-300"></i>
+                        </button>
+                    </div>
+                </div>
+
+               
+                <div class="mt-12 rounded-2xl overflow-hidden border border-cyan-500/30 shadow-lg relative group">
+                    <img src="https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=1200&q=80" 
+                         alt="Banner del Espacio Cosmos" 
+                         class="w-full h-64 md:h-96 object-cover object-center transform group-hover:scale-105 transition-transform duration-700"
+                         onerror="this.src='https://placehold.co/1200x500/0f172a/06b6d4?text=Banner+Cosmico'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-space-dark via-transparent to-transparent"></div>
+                    <div class="absolute bottom-4 left-6 right-6 flex justify-between items-end">
+                        <span class="text-sm font-mono text-cyan-300 bg-space-dark/80 px-3 py-1 rounded-md border border-cyan-500/40">
+                            NGC 6357 • Nebulosa de la Langosta
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-space-card p-6 rounded-2xl border border-purple-900/50 hover:border-purple-500/60 transition-all">
+                    <div class="text-cyan-400 text-3xl mb-3"><i class="fa-solid fa-atom"></i></div>
+                    <h3 class="text-xl font-bold font-orbitron mb-2">Energía Extrema</h3>
+                    <p class="text-gray-400 text-sm">Descubre los eventos que liberan más energía en segundos que nuestro Sol en toda su vida útil.</p>
+                </div>
+                <div class="bg-space-card p-6 rounded-2xl border border-purple-900/50 hover:border-purple-500/60 transition-all">
+                    <div class="text-purple-400 text-3xl mb-3"><i class="fa-solid fa-ring"></i></div>
+                    <h3 class="text-xl font-bold font-orbitron mb-2">Estructuras Gigantes</h3>
+                    <p class="text-gray-400 text-sm">Conoce los tipos de galaxias y nebulosas hiperdensas que pueblan los confines del espacio.</p>
+                </div>
+                <div class="bg-space-card p-6 rounded-2xl border border-purple-900/50 hover:border-purple-500/60 transition-all">
+                    <div class="text-pink-400 text-3xl mb-3"><i class="fa-solid fa-infinity"></i></div>
+                    <h3 class="text-xl font-bold font-orbitron mb-2">Misterios Sin Resolver</h3>
+                    <p class="text-gray-400 text-sm">Los cuásares y horizontes de sucesos que desafían las leyes actuales de la física.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- HOJA 2: SECCIÓN GALAXIAS Y NEBULOSAS (contenido.html) -->
+        <!-- ========================================================================= -->
+        <section id="page-galaxias" class="page-section space-y-8">
+            <div class="text-center space-y-3">
+                <!-- Título como en la Hoja 2 del boceto -->
+                <h2 class="text-3xl md:text-5xl font-extrabold font-orbitron graffiti-title glow-text-cyan">
+                    TIPOS DE GALAXIAS Y NEBULOSAS
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    Explora la diversidad de aglomeraciones estelares y nubes de gas interestelar que conforman la urdimbre del tejido cosmólogico.
+                </p>
+            </div>
+
+           
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                
+               
+                <div class="bg-space-card rounded-2xl p-6 border border-purple-500/30 neon-border flex flex-col justify-between">
+                    <div>
+                        <div class="relative rounded-xl overflow-hidden mb-4">
+                            <img src="https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=800&q=80" 
+                                 alt="Galaxia Espiral" 
+                                 class="w-full h-56 object-cover hover:scale-105 transition-transform duration-500"
+                                 onerror="this.src='https://placehold.co/800x400/0f172a/a855f7?text=Galaxia+Espiral'">
+                            <span class="absolute top-3 left-3 bg-purple-950/80 border border-purple-400 text-purple-200 text-xs px-3 py-1 rounded-full font-mono">
+                                Galaxia Espiral
+                            </span>
+                        </div>
+                        <h3 class="text-2xl font-bold font-orbitron text-purple-300 mb-2">Galaxia de Andrómeda (M31)</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                            Las galaxias espirales poseen discos rotatorios llenos de estrellas, gas y polvo, con una concentración central de estrellas viejas conocida como el bulbo. Tienen brazos brillantes en forma de espiral en expansión.
+                        </p>
+                    </div>
+                    <button onclick="openModal('Galaxia Espiral', 'Las galaxias espirales son una de las formas más deslumbrantes del universo. Tienen brazos en forma de espiral envueltos alrededor de un núcleo denso. La Vía Láctea y Andrómeda son los ejemplos más emblemáticos. En estos brazos ricos en gas se forman activamente miles de estrellas jóvenes cada siglo.', 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=800&q=80')" 
+                            class="w-full py-3 px-4 rounded-xl font-bold font-orbitron bg-purple-600/30 hover:bg-purple-600 border border-purple-500 text-white transition-all duration-300 text-center">
+                        CONOCER MÁS
+                    </button>
+                </div>
+
+               
+                <div class="bg-space-card rounded-2xl p-6 border border-cyan-500/30 neon-border flex flex-col justify-between">
+                    <div>
+                        <div class="relative rounded-xl overflow-hidden mb-4">
+                            <img src="https://images.unsplash.com/photo-1543722530-d2c3201371e7?auto=format&fit=crop&w=800&q=80" 
+                                 alt="Nebulosa Cosmos" 
+                                 class="w-full h-56 object-cover hover:scale-105 transition-transform duration-500"
+                                 onerror="this.src='https://placehold.co/800x400/0f172a/06b6d4?text=Nebulosa+Espacial'">
+                            <span class="absolute top-3 left-3 bg-cyan-950/80 border border-cyan-400 text-cyan-200 text-xs px-3 py-1 rounded-full font-mono">
+                                Nebulosa Extrema
+                            </span>
+                        </div>
+                        <h3 class="text-2xl font-bold font-orbitron text-cyan-300 mb-2">Nebulosa de la Laguna</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                            Nubes compuestas de hidrógeno, helio y polvo cósmico. Son conocidas como "guarderías estelares" debido a que en su interior nacen nuevas estrellas gracias al colapso gravitacional de la materia.
+                        </p>
+                    </div>
+                    <button onclick="openModal('Nebulosa Cósmica', 'Las nebulosas astronómicas son vastas regiones del espacio compuestas por gas y polvo. Se forman cuando las estrellas mueren en explosiones masivas o donde el gas frío colapsa. Nebulosas como Carina o la Nebulosa del Águila albergan los famosos Pilares de la Creación.', 'https://images.unsplash.com/photo-1543722530-d2c3201371e7?auto=format&fit=crop&w=800&q=80')" 
+                            class="w-full py-3 px-4 rounded-xl font-bold font-orbitron bg-cyan-600/30 hover:bg-cyan-600 border border-cyan-500 text-white transition-all duration-300 text-center">
+                        CONOCER MÁS
+                    </button>
+                </div>
+
+            
+                <div class="bg-space-card rounded-2xl p-6 border border-purple-500/30 neon-border flex flex-col justify-between">
+                    <div>
+                        <div class="relative rounded-xl overflow-hidden mb-4">
+                            <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80" 
+                                 alt="Galaxia Elíptica" 
+                                 class="w-full h-56 object-cover hover:scale-105 transition-transform duration-500"
+                                 onerror="this.src='https://placehold.co/800x400/0f172a/a855f7?text=Galaxia+Eliptica'">
+                            <span class="absolute top-3 left-3 bg-purple-950/80 border border-purple-400 text-purple-200 text-xs px-3 py-1 rounded-full font-mono">
+                                Galaxia Elíptica
+                            </span>
+                        </div>
+                        <h3 class="text-2xl font-bold font-orbitron text-purple-300 mb-2">Messier 87 (M87)</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                            Estructuras elipsoidales casi uniformes y sin brazos espirales visibles. Contienen estrellas muy antiguas y una cantidad mínima de gas interestelar, por lo que su ritmo de creación de nuevas estrellas es muy bajo.
+                        </p>
+                    </div>
+                    <button onclick="openModal('Galaxia Elíptica', 'Las galaxias elípticas abarcan desde pequeñas enanas hasta gigantes que contienen billones de estrellas. La galaxia M87 es un ejemplo colosal, en cuyo centro reside el primer agujero negro supermasivo jamás fotografiado por la humanidad.', 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=800&q=80')" 
+                            class="w-full py-3 px-4 rounded-xl font-bold font-orbitron bg-purple-600/30 hover:bg-purple-600 border border-purple-500 text-white transition-all duration-300 text-center">
+                        CONOCER MÁS
+                    </button>
+                </div>
+
+        
+                <div class="bg-space-card rounded-2xl p-6 border border-cyan-500/30 neon-border flex flex-col justify-between">
+                    <div>
+                        <div class="relative rounded-xl overflow-hidden mb-4">
+                            <img src="https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=800&q=80" 
+                                 alt="Galaxia Irregular" 
+                                 class="w-full h-56 object-cover hover:scale-105 transition-transform duration-500"
+                                 onerror="this.src='https://placehold.co/800x400/0f172a/06b6d4?text=Galaxia+Irregular'">
+                            <span class="absolute top-3 left-3 bg-cyan-950/80 border border-cyan-400 text-cyan-200 text-xs px-3 py-1 rounded-full font-mono">
+                                Galaxia Irregular
+                            </span>
+                        </div>
+                        <h3 class="text-2xl font-bold font-orbitron text-cyan-300 mb-2">Gran Nube de Magallanes</h3>
+                        <p class="text-gray-300 text-sm leading-relaxed mb-4">
+                            Galaxias que carecen de una forma simétrica o bien definida. Generalmente han sufrido deformaciones por colisiones galácticas pasadas o por fuertes tirones gravitacionales de galaxias compitientes cercanas.
+                        </p>
+                    </div>
+                    <button onclick="openModal('Galaxia Irregular', 'Las galaxias irregulares albergan grandes cantidades de gas y polvo, convirtiéndolas en potentes calderos de formación estelar. Un 25% de todas las galaxias conocidas caen dentro de esta caótica pero fascinante categoría.', 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=800&q=80')" 
+                            class="w-full py-3 px-4 rounded-xl font-bold font-orbitron bg-cyan-600/30 hover:bg-cyan-600 border border-cyan-500 text-white transition-all duration-300 text-center">
+                        CONOCER MÁS
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- HOJA 3: SECCIÓN CURIOSIDADES DEL COSMO (informacion.html) -->
+        <!-- ========================================================================= -->
+        <section id="page-curiosidades" class="page-section space-y-8">
+            <div class="text-center space-y-3">
+           
+                <h2 class="text-3xl md:text-5xl font-extrabold font-orbitron graffiti-title glow-text-purple">
+                    CURIOSIDADES DEL COSMO
+                </h2>
+                <p class="text-gray-400 max-w-2xl mx-auto">
+                    Los fenómenos más extremos, misteriosos e impresionantes registrados por la astrofísica moderna.
+                </p>
+            </div>
+
+          
+            <div class="space-y-6">
+                <!-- Fila 1: Tarjetas Informativas (Arriba) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+  
+                    <div class="bg-space-card p-6 rounded-2xl border border-purple-500/40 hover:border-purple-400 transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-3 mb-3 text-purple-400">
+                                <i class="fa-solid fa-circle-dot text-2xl"></i>
+                                <h3 class="text-xl font-bold font-orbitron text-white">Agujeros Negros Supermasivos</h3>
+                            </div>
+                            <p class="text-gray-300 text-sm leading-relaxed">
+                                Regiones del espacio donde la gravedad es tan extrema que ni siquiera la luz puede escapar. En su centro habita una 'singularidad', un punto de densidad infinita donde las leyes conocidas de la física dejan de operar.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-purple-900/40 flex items-center justify-between text-xs font-mono text-purple-300">
+                            <span>Gravedad Infinita</span>
+                            <i class="fa-solid fa-arrow-down text-purple-400 animate-bounce"></i>
+                        </div>
+                    </div>
+
+  
+                    <div class="bg-space-card p-6 rounded-2xl border border-cyan-500/40 hover:border-cyan-400 transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-3 mb-3 text-cyan-400">
+                                <i class="fa-solid fa-explosion text-2xl"></i>
+                                <h3 class="text-xl font-bold font-orbitron text-white">Explosiones de Supernova</h3>
+                            </div>
+                            <p class="text-gray-300 text-sm leading-relaxed">
+                                La muerte catastrófica de una estrella masiva. Durante su explosión, libera más energía que nuestro Sol en sus 10,000 millones de años de vida, sintetizando elementos pesados como el oro y el titanio.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-cyan-900/40 flex items-center justify-between text-xs font-mono text-cyan-300">
+                            <span>Evolución Estelar</span>
+                            <i class="fa-solid fa-arrow-down text-cyan-400 animate-bounce"></i>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta 3: Cuásares -->
+                    <div class="bg-space-card p-6 rounded-2xl border border-pink-500/40 hover:border-pink-400 transition-all flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center gap-3 mb-3 text-pink-400">
+                                <i class="fa-solid fa-bolt text-2xl"></i>
+                                <h3 class="text-xl font-bold font-orbitron text-white">Cuásares Relucientes</h3>
+                            </div>
+                            <p class="text-gray-300 text-sm leading-relaxed">
+                                Los objetos más brillantes de todo el universo observable. Son núcleos galácticos activos alimentados por agujeros negros hiperactivos que devoran materia y emiten chorros de radiación masivos.
+                            </p>
+                        </div>
+                        <div class="mt-4 pt-3 border-t border-pink-900/40 flex items-center justify-between text-xs font-mono text-pink-300">
+                            <span>Luminosidad Extrema</span>
+                            <i class="fa-solid fa-arrow-down text-pink-400 animate-bounce"></i>
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    
+                    
+                    <div class="rounded-2xl overflow-hidden border border-purple-500/30 group">
+                        <img src="https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=600&q=80" 
+                             alt="Ilustración Agujero Negro" 
+                             class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                             onerror="this.src='https://placehold.co/600x400/0f172a/a855f7?text=Agujero+Negro'">
+                        <div class="p-3 bg-space-dark text-center border-t border-purple-900/50">
+                            <span class="text-xs font-mono text-purple-300">Horizonte de Sucesos</span>
+                        </div>
+                    </div>
+
+                    
+                    <div class="rounded-2xl overflow-hidden border border-cyan-500/30 group">
+                        <img src="https://images.unsplash.com/photo-1447433589675-4aaa569f3e05?auto=format&fit=crop&w=600&q=80" 
+                             alt="Ilustración Supernova" 
+                             class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                             onerror="this.src='https://placehold.co/600x400/0f172a/06b6d4?text=Supernova'">
+                        <div class="p-3 bg-space-dark text-center border-t border-cyan-900/50">
+                            <span class="text-xs font-mono text-cyan-300">Remanente de Supernova</span>
+                        </div>
+                    </div>
+
+                
+                    <div class="rounded-2xl overflow-hidden border border-pink-500/30 group">
+                        <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80" 
+                             alt="Ilustración Cuásar" 
+                             class="w-full h-48 object-cover group-hover:scale-110 transition-transform duration-500"
+                             onerror="this.src='https://placehold.co/600x400/0f172a/ec4899?text=Cuasar'">
+                        <div class="p-3 bg-space-dark text-center border-t border-pink-900/50">
+                            <span class="text-xs font-mono text-pink-300">Chorro Radiactivo Relativista</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================================= -->
+        <!-- HOJA 4: SECCIÓN CONTACTO (contacto.html) -->
+        <!-- ========================================================================= -->
+        <section id="page-contacto" class="page-section space-y-8">
+            <div class="text-center space-y-3">
+          
+                <h2 class="text-4xl md:text-6xl font-black font-orbitron graffiti-title glow-text-cyan tracking-wider">
+                    CONTACTO...
+                </h2>
+                <p class="text-gray-400 max-w-xl mx-auto text-sm md:text-base">
+                    ¿Tienes dudas o sugerencias cosmológicas? Déjanos tu mensaje en nuestra estación de enlace espacial.
+                </p>
+            </div>
+
+            <div class="max-w-2xl mx-auto bg-space-card p-6 md:p-10 rounded-3xl border border-purple-500/30 shadow-2xl backdrop-blur-md relative">
+                
+
+                <div class="mb-6 bg-purple-950/60 border border-purple-500/40 rounded-xl p-3 text-xs text-purple-200 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-info text-cyan-400 text-base"></i>
+                    <span><strong>Nota de práctica:</strong> Este formulario es una demostración interactiva visual (sin conexión a servidor backend).</span>
+                </div>
+
+
+                <form id="contactForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                    
+
+                    <div>
+                        <label for="name" class="block text-sm font-semibold font-orbitron text-purple-300 mb-2">NAME / NOMBRE</label>
+                        <input type="text" id="name" required placeholder="Ingresa tu nombre cósmico..." 
+                               class="w-full bg-slate-900/90 border border-purple-900 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 rounded-xl px-4 py-3 text-white placeholder-gray-500 outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-semibold font-orbitron text-purple-300 mb-2">CORREO / EMAIL</label>
+                        <input type="email" id="email" required placeholder="tu-correo@astro.com" 
+                               class="w-full bg-slate-900/90 border border-purple-900 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 rounded-xl px-4 py-3 text-white placeholder-gray-500 outline-none transition-all">
+                    </div>
+
+
+                    <div>
+                        <label for="message" class="block text-sm font-semibold font-orbitron text-purple-300 mb-2">MENSAJE / MESSAGE</label>
+                        <textarea id="message" rows="5" required placeholder="Escribe aquí tu consulta espacial..." 
+                                  class="w-full bg-slate-900/90 border border-purple-900 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 rounded-xl px-4 py-3 text-white placeholder-gray-500 outline-none transition-all resize-none"></textarea>
+                    </div>
+
+
+                    <div class="flex items-center justify-between pt-2">
+                        <button type="submit" 
+                                class="px-8 py-3.5 rounded-xl font-bold font-orbitron text-base bg-gradient-to-r from-purple-600 to-cyan-500 text-white shadow-neon-purple hover:shadow-neon-cyan hover:scale-105 active:scale-95 transition-all duration-300 flex items-center gap-2">
+                            <span>ENVIAR</span>
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                        
+
+                        <div class="hidden sm:flex items-center gap-1 text-purple-500/50">
+                            <span class="w-2 h-2 rounded-full bg-purple-500 animate-ping"></span>
+                            <span class="w-12 h-0.5 bg-gradient-to-r from-purple-500 to-transparent"></span>
+                        </div>
+                    </div>
+                </form>
+
+     
+                <div id="formSuccess" class="hidden mt-6 bg-cyan-950/80 border border-cyan-400 text-cyan-200 p-4 rounded-xl text-center space-y-2">
+                    <i class="fa-solid fa-circle-check text-3xl text-cyan-400 mb-1"></i>
+                    <p class="font-bold font-orbitron text-lg">¡Transmisión Recibida!</p>
+                    <p class="text-sm">Tu mensaje ha sido enviado exitosamente por el canal subespacial de COSMOXSOULO.</p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+    <div id="infoModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-space-dark border border-cyan-500/50 rounded-3xl max-w-lg w-full p-6 shadow-neon-cyan space-y-4 relative animate-fade-in">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="rounded-xl overflow-hidden h-48">
+                <img id="modalImage" src="" alt="Modal Detail" class="w-full h-full object-cover">
+            </div>
+            <h3 id="modalTitle" class="text-2xl font-bold font-orbitron text-cyan-300"></h3>
+            <p id="modalDescription" class="text-gray-300 text-sm leading-relaxed"></p>
+            <div class="pt-2 text-right">
+                <button onclick="closeModal()" class="px-5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold font-orbitron text-xs text-white">
+                    CERRAR
+                </button>
+            </div>
+        </div>
+    </div>
+
+ 
+    <footer class="border-t border-purple-900/40 bg-space-dark/90 py-6 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p class="text-xs font-mono text-gray-500">
+                &copy; 2026 COSMOXSOULO — Práctica Escolar "Fenómenos Extremos del Cosmos"
+            </p>
+            <p class="text-xs text-purple-400/70">
+                Diseñado conforme a los requerimientos de estructura, Wireframe e interfaz visual moderna.
+            </p>
+        </div>
+    </footer>
+
+   
+    <script>
+        // 1. Sistema SPA para cambio de Páginas/Secciones
+        function navigateTo(pageId) {
+            // Ocultar todas las secciones
+            const sections = document.querySelectorAll('.page-section');
+            sections.forEach(sec => sec.classList.remove('active'));
+
+            // Mostrar la sección solicitada
+            const target = document.getElementById('page-' + pageId);
+            if(target) {
+                target.classList.add('active');
+            }
+
+            // Actualizar estilo activo de botones de navegación
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                btn.classList.remove('bg-purple-600', 'text-white', 'shadow-neon-purple');
+                btn.classList.add('text-gray-300');
+            });
+
+            const activeBtn = document.getElementById('nav-' + pageId);
+            if(activeBtn) {
+                activeBtn.classList.add('bg-purple-600', 'text-white', 'shadow-neon-purple');
+                activeBtn.classList.remove('text-gray-300');
+            }
+
+            // Desplazar al inicio suavemente
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 2. Control de Modal Interactivo
+        function openModal(title, description, imgSrc) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalDescription').innerText = description;
+            document.getElementById('modalImage').src = imgSrc;
+            document.getElementById('infoModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('infoModal').classList.add('hidden');
+        }
+
+        // 3. Simulación de Envío de Formulario
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            const form = document.getElementById('contactForm');
+            const successBox = document.getElementById('formSuccess');
+
+            // Feedback visual simulado
+            form.reset();
+            successBox.classList.remove('hidden');
+
+            setTimeout(() => {
+                successBox.classList.add('hidden');
+            }, 6000);
+        }
+
+        // 4. Animación interactiva de Estrellas en Canvas para Estética Cósmica
+        const canvas = document.getElementById('starfield');
+        const ctx = canvas.getContext('2d');
+        let stars = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initStars();
+        }
+
+        function initStars() {
+            stars = [];
+            const starCount = Math.floor((canvas.width * canvas.height) / 3000);
+            for (let i = 0; i < starCount; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 1.5,
+                    alpha: Math.random(),
+                    speed: Math.random() * 0.02 + 0.005
+                });
+            }
+        }
+
+        function animateStars() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            stars.forEach(star => {
+                star.alpha += star.speed;
+                if (star.alpha > 1 || star.alpha < 0) {
+                    star.speed = -star.speed;
+                }
+
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.radius, 0, Math.min(Math.PI * 2, Math.PI * star.radius));
+                ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(star.alpha)})`;
+                ctx.fill();
+            });
+
+            requestAnimationFrame(animateStars);
+        }
+
+        // Iniciar Canvas en el evento window load
+        window.onload = function() {
+            resizeCanvas();
+            animateStars();
+        };
+
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+</html>
